@@ -7,6 +7,7 @@
     <style>
         :root {
             --primary-color: #6c5ce7;
+            --accent-color: #ff7675;
             --bg-color: #f9f9fb;
             --text-color: #2d3436;
         }
@@ -24,82 +25,82 @@
             text-align: center; 
             width: 90%; 
             max-width: 500px; 
+            padding: 2rem 0;
         }
-        h1 { color: var(--primary-color); margin-bottom: 2rem; }
+        h1 { color: var(--primary-color); margin-bottom: 0.5rem; }
+        .subtitle { color: #636e72; margin-bottom: 2rem; font-size: 0.9rem; }
         
         .menu-list {
             display: grid;
-            gap: 15px;
+            gap: 12px;
             list-style: none;
             padding: 0;
         }
         .menu-item a {
             display: block;
-            padding: 20px;
+            padding: 18px;
             background: white;
             color: var(--text-color);
             text-decoration: none;
             border-radius: 15px;
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
             border: 1px solid #eee;
         }
         .menu-item a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 92, 231, 0.15);
             border-color: var(--primary-color);
-            color: var(--primary-color);
         }
         .level-tag {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #b2bec3;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 応用コース用の特別スタイル */
+        .advanced a {
+            border: 2px solid var(--accent-color);
+            background: #fffafa;
+        }
+        .advanced a:hover {
+            border-color: #d63031;
+            background: #fff5f5;
+        }
+        .advanced .level-tag {
+            color: var(--accent-color);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>TOEFL Training</h1>
-    <p>レベルを選択してください</p>
+    <h1>Listen and Repeat</h1>
+    <p class="subtitle">自分のレベルに合ったコースを選択してください</p>
     
     <div class="menu-list">
-        <div class="menu-item">
-            <a href="speakingchu3.html">
-                <span class="level-tag">Junior High - Year 3</span>
-                中学3年生レベル
+        <div class="menu-item"><a href="speakingchu3.html"><span class="level-tag">Junior High 3</span>中学3年生レベル</a></div>
+        <div class="menu-item"><a href="speakinghigh1.html"><span class="level-tag">High School 1</span>高校1年生レベル</a></div>
+        <div class="menu-item"><a href="speakinghigh2.html"><span class="level-tag">High School 2</span>高校2年生レベル</a></div>
+        <div class="menu-item"><a href="speakinghigh3.html"><span class="level-tag">High School 3</span>高校3年生レベル</a></div>
+        <div class="menu-item" style="margin-top: 10px;">
+            <a href="speaking.html" style="background: #f1f2f6; border: none; font-size: 0.9rem;">
+                標準コース (TOEFL)
+            </a>
+        </div>
+        <div class="menu-item advanced">
+            <a href="speaking3.html">
+                <span class="level-tag">Advanced Challenge</span>
+                🔥 応用コース (TOEFL)
             </a>
         </div>
 
-        <div class="menu-item">
-            <a href="speakinghigh1.html">
-                <span class="level-tag">High School - Year 1</span>
-                高校1年生レベル
-            </a>
-        </div>
-
-        <div class="menu-item">
-            <a href="speakinghigh2.html">
-                <span class="level-tag">High School - Year 2</span>
-                高校2年生レベル
-            </a>
-        </div>
-
-        <div class="menu-item">
-            <a href="speakinghigh3.html">
-                <span class="level-tag">High School - Year 3</span>
-                高校3年生レベル
-            </a>
-        </div>
         
-        <div class="menu-item">
-            <a href="speaking.html" style="background: #f1f2f6;">
-                <span class="level-tag">Standard</span>
-                標準コース (Speaking.html)
-            </a>
-        </div>
     </div>
 </div>
 
