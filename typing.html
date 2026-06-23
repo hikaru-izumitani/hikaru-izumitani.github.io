@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Clip-Type Trainer</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        #text-display { font-size: 24px; margin-bottom: 20px; white-space: pre-wrap; word-break: break-all; }
+        .correct { color: green; }
+        .incorrect { color: red; text-decoration: underline; }
+        #input-area { width: 100%; height: 100px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>クリップボード タイピング練習</h1>
+    <button onclick="loadClipboard()">クリップボードから読み込む</button>
+    <div id="text-display">ここにペーストされた内容が表示されます。</div>
+    <textarea id="input-area" placeholder="ここにタイピングしてください"></textarea>
+
+    <script>
+        let targetText = "";
+        const display = document.getElementById('text-display');
+        const input = document.getElementById('input-area');
+
+        async function loadClipboard() {
+            try {
+                targetText = await navigator.clipboard.readText();
+                display.innerText = targetText;
+                input.value = "";
+            } catch (err) {
+                alert("クリップボードへのアクセスが許可されていません。");
+            }
+        }
+
+        input.addEventListener('input', () => {
+            const currentInput = input.value;
+            let html = "";
+            for (let i = 0; i < targetText.length; i++) {
+                if (i < currentInput.length) {
+                    const color = currentInput[i] === targetText[i] ? "correct" : "incorrect";
+                    html += `<span class="${color}">${targetText[i]}</span>`;
+                } else {
+                    html += `<span>${targetText[i]}</span>`;
+                }
+            }
+            display.innerHTML = html;
+        });
+    </script>
+</body>
+</html>
