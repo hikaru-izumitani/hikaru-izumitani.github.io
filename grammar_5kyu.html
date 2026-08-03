@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eiken Grade 5 - Build a Sentence Practice (30 Questions)</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #cbd5e1;
+            --success: #16a34a;
+            --error: #dc2626;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-box {
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .timer-box.warning {
+            background: #fef2f2;
+            color: var(--error);
+            border-color: #fca5a5;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .instructions {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        .progress {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        .prompt-box {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .statement {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+
+        .sentence-builder {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 64px;
+            padding: 12px;
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .fixed-word {
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .blank-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            min-height: 40px;
+            padding: 4px 8px;
+            background: #f8fafc;
+            border: 2px dashed #94a3b8;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .blank-slot.drag-over {
+            background: #e0f2fe;
+            border-color: var(--primary);
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 54px;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .word-pool-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .word-chip {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: grab;
+            font-size: 0.95rem;
+            user-select: none;
+            touch-action: none;
+            transition: all 0.2s ease;
+        }
+
+        .word-chip:active {
+            cursor: grabbing;
+        }
+
+        .word-chip.dragging {
+            opacity: 0.4;
+        }
+
+        .punctuation-mark {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-left: 4px;
+            color: #334155;
+            align-self: flex-end;
+            padding-bottom: 8px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            min-height: 24px;
+        }
+
+        .feedback.correct {
+            color: var(--success);
+        }
+
+        .feedback.incorrect {
+            color: var(--error);
+        }
+
+        .explanation-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            color: #166534;
+        }
+
+        .review-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-row">
+        <h1>Eiken Grade 5 Practice</h1>
+        <div class="timer-box" id="timerBox">
+            ⏱️ <span id="timerText">30</span>s
+        </div>
+    </div>
+    <div class="instructions">英検5級・中学1年レベルの基本文を組み立てましょう。間違えた場合は、文法解説を確認してチェックを入れると次に進めます。</div>
+    
+    <div class="progress" id="progress">Question 1 of 30</div>
+    
+    <div class="prompt-box">
+        <div class="statement" id="statementText">Loading...</div>
+        
+        <div class="sentence-builder" id="sentenceBuilder"></div>
+        
+        <div class="word-pool-label">Word Bank (Drag / Tap & Drop)</div>
+        <div class="word-pool" id="wordPool" ondragover="allowDrop(event)" ondragleave="removePoolStyle(event)" ondrop="dropToPool(event)"></div>
+    </div>
+
+    <!-- 解説・レビューエリア -->
+    <div id="explanationContainer" class="explanation-box hidden">
+        <div id="explanationText"></div>
+        <label class="review-label">
+            <input type="checkbox" id="reviewCheckbox" onchange="toggleReview()"> 正しい答えと文法解説を確認しました
+        </label>
+    </div>
+
+    <div class="controls">
+        <button id="checkBtn" onclick="checkAnswer()">Check Answer</button>
+        <button id="nextBtn" onclick="nextQuestion()" style="display: none;" disabled>Next Question</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+</div>
+
+<script>
+    const questions = [
+        // 1. be動詞 (肯定)
+        {
+            context: "私は学生です。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "am" },
+                { fixed: false, target: "a" },
+                { fixed: false, target: "student" }
+            ],
+            punctuation: ".",
+            explanation: "主語が「I（私）」のときの be動詞は「am」を使います。「am a student」で「1人の学生です」となります。"
+        },
+        // 2. be動詞 (疑問文)
+        {
+            context: "あなたはトムですか？",
+            parts: [
+                { fixed: false, target: "Are" },
+                { fixed: false, target: "you" },
+                { fixed: false, target: "Tom" }
+            ],
+            punctuation: "?",
+            explanation: "be動詞の疑問文は、be動詞（Are）を主語（you）の前に置きます。"
+        },
+        // 3. be動詞 (否定文)
+        {
+            context: "私は忙しくありません。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "am" },
+                { fixed: false, target: "not" },
+                { fixed: false, target: "busy" }
+            ],
+            punctuation: ".",
+            explanation: "be動詞の否定文は、be動詞のすぐ後ろに「not」を置きます（I am not 〜）。"
+        },
+        // 4. 一般動詞 (肯定)
+        {
+            context: "私は英語を話します。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "speak" },
+                { fixed: false, target: "English" }
+            ],
+            punctuation: ".",
+            explanation: "主語（I）のあとに一般動詞（speak）、そして目的語（English）が続く基本の文型（SVO）です。"
+        },
+        // 5. 一般動詞 (疑問文 Do)
+        {
+            context: "あなたはリンゴが好きですか？",
+            parts: [
+                { fixed: false, target: "Do" },
+                { fixed: false, target: "you" },
+                { fixed: false, target: "like" },
+                { fixed: false, target: "apples" }
+            ],
+            punctuation: "?",
+            explanation: "一般動詞の疑問文では、文頭に「Do」を置きます。そのあと「主語 ＋ 動詞の原形」と続きます。"
+        },
+        // 6. 一般動詞 (否定文 don't)
+        {
+            context: "私はサッカーをしません。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "do" },
+                { fixed: false, target: "not" },
+                { fixed: false, target: "play" },
+                { fixed: false, target: "soccer" }
+            ],
+            punctuation: ".",
+            explanation: "一般動詞の否定文は、動詞の前に「do not（don't）」を置きます。"
+        },
+        // 7. 三人称単数現在 (肯定 -s)
+        {
+            context: "彼はテニスをします。",
+            parts: [
+                { fixed: false, target: "He" },
+                { fixed: false, target: "plays" },
+                { fixed: false, target: "tennis" }
+            ],
+            punctuation: ".",
+            explanation: "主語が「He（三人称単数）」で、現在の文のとき、一般動詞の語尾に「-s」が付きます（plays）。"
+        },
+        // 8. 三人称単数現在 (疑問文 Does)
+        {
+            context: "彼女はピアノを弾きますか？",
+            parts: [
+                { fixed: false, target: "Does" },
+                { fixed: false, target: "she" },
+                { fixed: false, target: "play" },
+                { fixed: false, target: "the" },
+                { fixed: false, target: "piano" }
+            ],
+            punctuation: "?",
+            explanation: "主語が三人称単数（she）の疑問文では、文頭に「Does」を使います。動詞はもとの形（play）に戻ります。"
+        },
+        // 9. 代名詞 (所有格)
+        {
+            context: "これは私のペンです。",
+            parts: [
+                { fixed: false, target: "This" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "my" },
+                { fixed: false, target: "pen" }
+            ],
+            punctuation: ".",
+            explanation: "「私の〜」と言いたいときは所有格の「my」を名詞の前に置きます。"
+        },
+        // 10. 代名詞 (目的格)
+        {
+            context: "私は彼を知っています。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "know" },
+                { fixed: false, target: "him" }
+            ],
+            punctuation: ".",
+            explanation: "動詞のあとにくる「彼を」という代名詞は、目的格の「him」を使います。"
+        },
+        // 11. 疑問詞 What
+        {
+            context: "これは何ですか？",
+            parts: [
+                { fixed: false, target: "What" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "this" }
+            ],
+            punctuation: "?",
+            explanation: "「何」を尋ねる疑問詞「What」を文頭に置き、be動詞の疑問文の形（is this）につなげます。"
+        },
+        // 12. 疑問詞 Who
+        {
+            context: "あの男性は誰ですか？",
+            parts: [
+                { fixed: false, target: "Who" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "that" },
+                { fixed: false, target: "man" }
+            ],
+            punctuation: "?",
+            explanation: "「誰」を尋ねる疑問詞「Who」を用いて、人物について尋ねる基本の疑問文です。"
+        },
+        // 13. 疑問詞 Where
+        {
+            context: "私のカバンはどこですか？",
+            parts: [
+                { fixed: false, target: "Where" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "my" },
+                { fixed: false, target: "bag" }
+            ],
+            punctuation: "?",
+            explanation: "場所を尋ねる疑問詞「Where」を文頭に置き、主語（my bag）の前に be動詞（is）を置きます。"
+        },
+        // 14. 疑問詞 When
+        {
+            context: "あなたの誕生日はいつですか？",
+            parts: [
+                { fixed: false, target: "When" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "your" },
+                { fixed: false, target: "birthday" }
+            ],
+            punctuation: "?",
+            explanation: "時間を尋ねる疑問詞「When」を文頭に置いた、誕生日やイベントの時期を問う定番表現です。"
+        },
+        // 15. 疑問詞 Which
+        {
+            context: "どちらの本が好きですか？",
+            parts: [
+                { fixed: false, target: "Which" },
+                { fixed: false, target: "book" },
+                { fixed: false, target: "do" },
+                { fixed: false, target: "you" },
+                { fixed: false, target: "like" }
+            ],
+            punctuation: "?",
+            explanation: "「どちらの〜」と選択を迫るときは「Which ＋ 名詞」のセットを文頭に置きます。"
+        },
+        // 16. 進行形 (肯定)
+        {
+            context: "私は今、本を読んでいます。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "am" },
+                { fixed: false, target: "reading" },
+                { fixed: false, target: "a" },
+                { fixed: false, target: "book" }
+            ],
+            punctuation: ".",
+            explanation: "「今〜している」という現在進行形は「am/is/are ＋ 動詞-ing」の形で表します。"
+        },
+        // 17. 進行形 (疑問)
+        {
+            context: "あなたは何をしていますか？",
+            parts: [
+                { fixed: false, target: "What" },
+                { fixed: false, target: "are" },
+                { fixed: false, target: "you" },
+                { fixed: false, target: "doing" }
+            ],
+            punctuation: "?",
+            explanation: "進行形の疑問文は、be動詞（are）を主語（you）の前に出し、動詞に -ing をつけます。"
+        },
+        // 18. 助動詞 can (肯定)
+        {
+            context: "私は泳ぐことができます。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "can" },
+                { fixed: false, target: "swim" }
+            ],
+            punctuation: ".",
+            explanation: "能力を表す助動詞「can」のあとには、必ず動詞の原形（swim）が続きます。"
+        },
+        // 19. 助動詞 can (疑問)
+        {
+            context: "あなたはピアノを弾くことができますか？",
+            parts: [
+                { fixed: false, target: "Can" },
+                { fixed: false, target: "you" },
+                { fixed: false, target: "play" },
+                { fixed: false, target: "the" },
+                { fixed: false, target: "piano" }
+            ],
+            punctuation: "?",
+            explanation: "canを使った疑問文は、文頭に「Can」を置いて「Can ＋ 主語 ＋ 動詞の原形」の順にします。"
+        },
+        // 20. 助動詞 can (否定)
+        {
+            context: "私はそれをすることはできません。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "cannot" },
+                { fixed: false, target: "do" },
+                { fixed: false, target: "it" }
+            ],
+            punctuation: ".",
+            explanation: "canの否定は「cannot（またはcan't）」とし、そのあとに動詞の原形を続けます。"
+        },
+        // 21. 命令文
+        {
+            context: "ドアを開けなさい。",
+            parts: [
+                { fixed: false, target: "Open" },
+                { fixed: false, target: "the" },
+                { fixed: false, target: "door" }
+            ],
+            punctuation: ".",
+            explanation: "相手に指示や命令をする文は、主語を置かずに動詞の原形（Open）から始めます。"
+        },
+        // 22. 禁止の命令文
+        {
+            context: "ここで走ってはいけません。",
+            parts: [
+                { fixed: false, target: "Don't" },
+                { fixed: false, target: "run" },
+                { fixed: false, target: "here" }
+            ],
+            punctuation: ".",
+            explanation: "「〜してはいけない」という禁止は、文頭に「Don't」を置いて始めます。"
+        },
+        // 23. 提案 (Let's)
+        {
+            context: "テニスをしましょう。",
+            parts: [
+                { fixed: false, target: "Let's" },
+                { fixed: false, target: "play" },
+                { fixed: false, target: "tennis" }
+            ],
+            punctuation: ".",
+            explanation: "「〜しようよ」と誘うときは「Let's（Let us）」のあとに動詞の原形を置きます。"
+        },
+        // 24. 存在 (There is)
+        {
+            context: "机の上に本が1冊あります。",
+            parts: [
+                { fixed: false, target: "There" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "a" },
+                { fixed: false, target: "book" },
+                { fixed: false, target: "on" },
+                { fixed: false, target: "the" },
+                { fixed: false, target: "desk" }
+            ],
+            punctuation: ".",
+            explanation: "「〜がある・いる」を表すときは「There is ＋ 単数名詞」の構文を使います。"
+        },
+        // 25. 形容詞の修飾
+        {
+            context: "これは新しい車です。",
+            parts: [
+                { fixed: false, target: "This" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "a" },
+                { fixed: false, target: "new" },
+                { fixed: false, target: "car" }
+            ],
+            punctuation: ".",
+            explanation: "形容詞（new）は、修飾する名詞（car）の直前に置きます。"
+        },
+        // 26. 複数形
+        {
+            context: "あれらは私の猫たちです。",
+            parts: [
+                { fixed: false, target: "Those" },
+                { fixed: false, target: "are" },
+                { fixed: false, target: "my" },
+                { fixed: false, target: "cats" }
+            ],
+            punctuation: ".",
+            explanation: "「あれらは〜です」と複数のものを指すときは、指示代名詞の複数形「Those」と be動詞「are」を使います。"
+        },
+        // 27. 天気・時間 (It)
+        {
+            context: "今日は雨が降っています。",
+            parts: [
+                { fixed: false, target: "It" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "rainy" },
+                { fixed: false, target: "today" }
+            ],
+            punctuation: ".",
+            explanation: "天気や気候を表すときは、主語に意味のない「It」を使います（It is rainy）。"
+        },
+        // 28. 形容詞の叙述用法
+        {
+            context: "このスープは美味しいです。",
+            parts: [
+                { fixed: false, target: "This" },
+                { fixed: false, target: "soup" },
+                { fixed: false, target: "is" },
+                { fixed: false, target: "delicious" }
+            ],
+            punctuation: ".",
+            explanation: "「主語 ＋ be動詞 ＋ 形容詞」の形で、主語の状態や性質を説明します。"
+        },
+        // 29. 前置詞 (in)
+        {
+            context: "私は日本に住んでいます。",
+            parts: [
+                { fixed: false, target: "I" },
+                { fixed: false, target: "live" },
+                { fixed: false, target: "in" },
+                { fixed: false, target: "Japan" }
+            ],
+            punctuation: ".",
+            explanation: "国や都市などの広い場所を表すときは、前置詞「in」を使います。"
+        },
+        // 30. 挨拶・決まり文句
+        {
+            context: "お会いできて嬉しいです。",
+            parts: [
+                { fixed: false, target: "Nice" },
+                { fixed: false, target: "to" },
+                { fixed: false, target: "meet" },
+                { fixed: false, target: "you" }
+            ],
+            punctuation: ".",
+            explanation: "英検5級の会話表現の基本。「Nice to meet you.」で初対面の挨拶になります。"
+        }
+    ];
+
+    let currentIdx = 0;
+    let draggedChip = null;
+    let timeLeft = 30;
+    let timerInterval = null;
+    let isAnswered = false;
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 30;
+        isAnswered = false;
+        updateTimerDisplay();
+
+        const timerBox = document.getElementById('timerBox');
+        timerBox.classList.remove('warning');
+
+        timerInterval = setInterval(() => {
+            if (isAnswered) return;
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                if (!timerBox.classList.contains('warning')) {
+                    timerBox.classList.add('warning');
+                }
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const timerText = document.getElementById('timerText');
+        timerText.innerText = timeLeft;
+    }
+
+    function loadQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('progress').innerText = `Question ${currentIdx + 1} of ${questions.length}`;
+        document.getElementById('statementText').innerText = q.context;
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('feedback').className = 'feedback';
+        document.getElementById('checkBtn').style.display = 'inline-block';
+        document.getElementById('nextBtn').style.display = 'none';
+        
+        document.getElementById('explanationContainer').classList.add('hidden');
+        document.getElementById('reviewCheckbox').checked = false;
+
+        const builder = document.getElementById('sentenceBuilder');
+        const wordPool = document.getElementById('wordPool');
+        builder.innerHTML = '';
+        wordPool.innerHTML = '';
+
+        let blankTargets = q.parts.filter(p => !p.fixed).map(p => p.target);
+        let shuffledPool = [...blankTargets].sort(() => Math.random() - 0.5);
+
+        shuffledPool.forEach(targetText => {
+            wordPool.appendChild(createChip(targetText));
+        });
+
+        q.parts.forEach((part) => {
+            if (part.fixed) {
+                const fixedEl = document.createElement('div');
+                fixedEl.className = 'fixed-word';
+                fixedEl.innerText = part.target;
+                builder.appendChild(fixedEl);
+            } else {
+                const slot = document.createElement('div');
+                slot.className = 'blank-slot';
+                slot.dataset.target = part.target;
+
+                slot.addEventListener('dragover', (e) => {
+                    if (isAnswered) return;
+                    e.preventDefault();
+                    slot.classList.add('drag-over');
+                });
+                slot.addEventListener('dragleave', () => {
+                    slot.classList.remove('drag-over');
+                });
+                slot.addEventListener('drop', (e) => {
+                    if (isAnswered) return;
+                    e.preventDefault();
+                    slot.classList.remove('drag-over');
+                    if (draggedChip) {
+                        if (slot.children.length > 0) {
+                            wordPool.appendChild(slot.children[0]);
+                        }
+                        slot.appendChild(draggedChip);
+                    }
+                });
+
+                builder.appendChild(slot);
+            }
+        });
+
+        const punct = document.createElement('div');
+        punct.className = 'punctuation-mark';
+        punct.innerText = q.punctuation;
+        builder.appendChild(punct);
+
+        startTimer();
+    }
+
+    function createChip(text) {
+        const chip = document.createElement('div');
+        chip.className = 'word-chip';
+        chip.draggable = true;
+        chip.innerText = text;
+
+        chip.addEventListener('dragstart', () => {
+            if (isAnswered) return;
+            draggedChip = chip;
+            setTimeout(() => chip.classList.add('dragging'), 0);
+        });
+        chip.addEventListener('dragend', () => {
+            draggedChip = null;
+        });
+
+        chip.addEventListener('touchstart', (e) => {
+            if (isAnswered) return;
+            draggedChip = chip;
+            chip.classList.add('dragging');
+        }, {passive: true});
+
+        chip.addEventListener('touchend', (e) => {
+            if (isAnswered) return;
+            chip.classList.remove('dragging');
+            
+            const touch = e.changedTouches[0];
+            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (targetElement) {
+                const slot = targetElement.closest('.blank-slot');
+                const pool = targetElement.closest('.word-pool');
+                
+                if (slot) {
+                    if (slot.children.length > 0) {
+                        document.getElementById('wordPool').appendChild(slot.children[0]);
+                    }
+                    slot.appendChild(chip);
+                } else if (pool) {
+                    pool.appendChild(chip);
+                }
+            }
+            draggedChip = null;
+        });
+
+        return chip;
+    }
+
+    function allowDrop(e) {
+        if (isAnswered) return;
+        e.preventDefault();
+        e.currentTarget.style.background = '#f1f5f9';
+    }
+
+    function removePoolStyle(e) {
+        e.currentTarget.style.background = '#f8fafc';
+    }
+
+    function dropToPool(e) {
+        if (isAnswered) return;
+        e.preventDefault();
+        document.getElementById('wordPool').style.background = '#f8fafc';
+        if (draggedChip) {
+            document.getElementById('wordPool').appendChild(draggedChip);
+        }
+    }
+
+    function checkAnswer() {
+        if (isAnswered) return;
+        
+        const builder = document.getElementById('sentenceBuilder');
+        const slots = builder.querySelectorAll('.blank-slot');
+        const feedback = document.getElementById('feedback');
+
+        let allFilled = true;
+        let isCorrect = true;
+
+        slots.forEach(slot => {
+            if (slot.children.length === 0) {
+                allFilled = false;
+            } else {
+                const userText = slot.children[0].innerText.trim();
+                const correctText = slot.dataset.target.trim();
+                if (userText.toLowerCase() !== correctText.toLowerCase()) {
+                    isCorrect = false;
+                }
+            }
+        });
+
+        if (!allFilled) {
+            feedback.innerText = "すべての空欄に単語を置いてください。";
+            feedback.className = "feedback incorrect";
+            return;
+        }
+
+        if (isCorrect) {
+            isAnswered = true;
+            clearInterval(timerInterval);
+            feedback.innerText = "正解です！素晴らしい！";
+            feedback.className = "feedback correct";
+            document.getElementById('checkBtn').style.display = 'none';
+            if (currentIdx < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('nextBtn').disabled = false;
+            }
+        } else {
+            isAnswered = true;
+            clearInterval(timerInterval);
+            feedback.innerText = "不正解です。以下の正しい文と文法解説を確認してください。";
+            feedback.className = "feedback incorrect";
+            document.getElementById('checkBtn').style.display = 'none';
+            
+            const q = questions[currentIdx];
+            let fullSentence = q.parts.map(p => p.target).join(" ") + q.punctuation;
+            
+            const explanationText = document.getElementById('explanationText');
+            explanationText.innerHTML = `
+                <strong>Correct Sentence:</strong> ${fullSentence}<br>
+                <div style="margin-top: 8px; font-weight: normal; color: #166534; line-height: 1.5;">
+                    <strong>文法解説:</strong> ${q.explanation}
+                </div>
+            `;
+            document.getElementById('explanationContainer').classList.remove('hidden');
+            
+            if (currentIdx < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('nextBtn').disabled = true;
+            }
+        }
+    }
+
+    function toggleReview() {
+        const checkbox = document.getElementById('reviewCheckbox');
+        const nextBtn = document.getElementById('nextBtn');
+        if (checkbox.checked) {
+            nextBtn.disabled = false;
+        } else {
+            nextBtn.disabled = true;
+        }
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            loadQuestion();
+        } else {
+            document.getElementById('progress').innerText = "Complete!";
+            document.getElementById('statementText').innerText = "おめでとうございます！全30問をすべてクリアしました！";
+            document.getElementById('sentenceBuilder').innerHTML = "";
+            document.getElementById('wordPool').innerHTML = "";
+            document.getElementById('timerBox').style.display = "none";
+            document.getElementById('checkBtn').style.display = "none";
+            document.getElementById('nextBtn').style.display = "none";
+            document.getElementById('explanationContainer').classList.add('hidden');
+        }
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
