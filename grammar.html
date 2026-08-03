@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Learning Hub - Grammar Apps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 min-h-screen text-slate-100 flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="w-full max-w-5xl mx-auto px-6 py-8 text-center">
+        <span class="inline-block bg-indigo-500/10 text-indigo-400 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-3 border border-indigo-500/20">
+            Grammar Training Portal
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+            英語学習アプリケーション
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+            目的のコンテンツ（TOEFL対策または英検の級別文法）を選択して、学習を開始してください。
+        </p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-5xl mx-auto px-6 pb-12">
+        
+        <!-- TOEFL Section -->
+        <section class="mb-10">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                TOEFL Preparation
+            </h2>
+            <div class="grid grid-cols-1">
+                <a href="app2.html" class="group relative bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-indigo-500/10 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform duration-300 font-bold text-lg">
+                            T
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-indigo-300 transition-colors">
+                                TOEFL Writing Grammar練習
+                            </h3>
+                            <p class="text-sm text-slate-400">app2.html — 文法並べ替え問題</p>
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-700/50 group-hover:bg-indigo-600 flex items-center justify-center text-slate-300 group-hover:text-white transition-all duration-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Eiken Section -->
+        <section>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-emerald-400 mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                英検 (Eiken) Grammar Levels
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                
+                <!-- 1級 -->
+                <a href="grammar_1kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            1級
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 1級</h3>
+                            <p class="text-xs text-slate-400">grammar_1kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+                <!-- 準1級 -->
+                <a href="grammar_p1kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            準1
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 準1級</h3>
+                            <p class="text-xs text-slate-400">grammar_p1kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+                <!-- 2級 -->
+                <a href="grammar_2kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            2級
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 2級</h3>
+                            <p class="text-xs text-slate-400">grammar_2kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+                <!-- 準2級 -->
+                <a href="grammar_p2kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            準2
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 準2級</h3>
+                            <p class="text-xs text-slate-400">grammar_p2kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+                <!-- 3級 -->
+                <a href="grammar_3kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            3級
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 3級</h3>
+                            <p class="text-xs text-slate-400">grammar_3kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+                <!-- 4級 -->
+                <a href="grammar_4kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            4級
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 4級</h3>
+                            <p class="text-xs text-slate-400">grammar_4kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+                <!-- 5級 -->
+                <a href="grammar_5kyu.html" class="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm group-hover:scale-110 transition-transform">
+                            5級
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">英検 5級</h3>
+                            <p class="text-xs text-slate-400">grammar_5kyu.html</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-6 text-xs text-slate-500 border-t border-slate-800">
+        &copy; Grammar Training Apps. All rights reserved.
+    </footer>
+
+</body>
+</html>
