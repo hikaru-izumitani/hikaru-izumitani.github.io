@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUILD A SENTENCE - TOEFL Practice</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-badge {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .timer-badge.negative {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .instructions {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .prompt-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            min-height: 70px;
+            padding: 16px;
+            background-color: #ffffff;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .word-bank-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 60px;
+            padding: 12px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .chip {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .chip:hover {
+            border-color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-primary:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        .result-indicator {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+        }
+        .result-indicator.correct { color: var(--success-color); }
+        .result-indicator.incorrect { color: var(--danger-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-row">
+        <h1>BUILD A SENTENCE</h1>
+        <div id="timer" class="timer-badge">⏱ 40 s</div>
+    </div>
+
+    <div class="instructions">
+        Move the words into the blanks to create grammatical sentences. If incorrect, review the correct answer and grammar note before proceeding.
+    </div>
+    <div class="progress-text" id="progress-text">Loading questions...</div>
+
+    <div class="card">
+        <div class="prompt-text" id="prompt-text">Loading...</div>
+        
+        <div class="drop-zone" id="drop-zone"></div>
+
+        <div class="word-bank-title">WORD BANK (TAP TO MOVE)</div>
+        <div class="word-bank" id="word-bank"></div>
+    </div>
+
+    <div class="action-row">
+        <button class="btn-primary" id="submit-btn" onclick="checkAnswer()" disabled>Check Answer</button>
+        <button class="btn-primary" id="next-btn" style="display:none; background-color: var(--success-color);" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="explanation-box" id="explanation-box">
+        <div id="result-indicator" class="result-indicator"></div>
+        <div id="explanation-content"></div>
+    </div>
+</div>
+
+<script>
+    // タブ区切り（TSV）形式のデータ。カンマ混入や列ズレの心配がありません。
+    const tsvData = `Did you manage to talk to the supervisor about the schedule change?\tchance,haven't,yet,to,had,I,a\tI,haven't,had,a,chance,to,yet\t.\t助動詞 have の後には過去分詞（had）が続き、不定詞 to の後には省略可能な目的語を挟んで文末に yet を配置します。
+Where did you get that necktie?\tgift,my,from,a,was,sister,birthday,for,It,my\tIt,was,a,gift,from,my,sister,for,my,birthday\t.\t主語 It に続く動詞は was。所有格や前置詞（from, for）の結びつき（コロケーション）を正しく捉えて順序を組み立てます。
+How long have you been living at your current address?\tabout,weeks,into,apartment,three,moved,I,this,ago\tI,moved,into,this,apartment,about,three,weeks,ago\t.\t過去の時点から現在までの起点を表す場合は before ではなく ago を文末に用います。また move into の組み合わせが基本です。
+It looks like all of the seats have already been taken.\tauditorium,to,sooner,gotten,we,should,have,Yeah,I,guess,the\tYeah,I,guess,we,should,have,gotten,to,the,auditorium,sooner\t.\t助動詞の過去形 should have の後には過去分詞 gotten が来ます。また到達を表す際は get in ではなく get to を使用します。
+I'm not sure how to replace the ink cartridge for this printer.\tsend,James,call,IT,you,should,just,and,ask,them,to,Then\tThen,you,should,just,call,IT,and,ask,them,to,send,James\t.\t助動詞 should の直後に副詞 just を挿入し、目的語の後に続く不定詞（to send）の形を正しく配置します。
+Have you decided what you would like to order?\tis,huge,minutes,because,a,few,more,menu,use,this,could,we,Actually\tActually,we,could,use,a,few,more,minutes,because,this,menu,is,huge\t.\t接続詞 because の後ろには「主語（this menu）＋動詞（is）」の完全な節を置く必要があります。
+I finally found that journal article I need for my essay.\tarticle,the,read,I,you,when,assignment,your,with,could,finished,are\tCould,I,read,the,article,when,you,are,finished,with,your,assignment\t?\t助動詞の疑問文（Could I + 動詞原形）の構造と、時を表す副詞節（when you are finished...）の正しい骨組みを組み合わせます。
+Most of the people on this trip attend our university.\tother,met,few,have,a,are,from,they,but,there,schools,that,I\tThey,are,a,few,from,other,schools,that,I,have,met,but,there\t.\t対比を表す接続詞 but の前後の節の構造と、現在完了形（have met）の正しい語順を組み立てます。
+Are you ready to submit your application form?\tcheck,need,to,I,everything,one,last,time\tI,need,to,check,everything,one,last,time\t.\t動詞 need の目的語として不定詞（to check）を取り、その直後には動詞の原形が続きます。
+Did you hear about the sudden change in the project deadline?\temail,an,about,morning,this,received,I\tI,received,an,email,about,this,morning\t.\t主語・動詞・目的語（SVO）の基本構造に従い、時を示す副詞句を適切に配置します。
+Do you know where Professor Davis is right now?\toffice,his,in,be,might,he\tHe,might,be,in,his,office\t.\t助動詞 might の直後には必ず動詞の原形（be）を置きます。
+How was your presentation in front of the class yesterday?\twell,very,it,went\tIt,went,very,well\t.\t自動詞 went の修飾語として、副詞 very well を正しい語順で配置します。
+Why didn't you join us for lunch yesterday?\tfinish,report,have,I,to,my\tI,had,to,finish,my,report\t.\t過去の義務を表す had to の後ろには動詞の原形（finish）が続きます。
+Have you decided where you are going for the summer vacation?\tto,plan,Japan,I,visit\tI,plan,to,visit,Japan\t.\t動詞 plan の後ろに不定詞（to visit）を置き、その後に目的語を続けます。
+Is it going to rain this afternoon according to the forecast?\ttake,an,umbrella,better,you'd\tYou'd,better,take,an,umbrella\t.\t助動詞的表現 had better の後ろには動詞の原形（take）が来ます。
+Do you need any help carrying those heavy boxes?\tmanage,I,myself,can,it\tI,can,manage,it,myself\t.\t助動詞 can の後ろには動詞の原形（manage）を置きます。
+When will the new software update be available for download?\treleased,next,week,it,be,will\tIt,will,be,released,next,week\t.\t受動態の文において、助動詞 will の後には be、さらに過去分詞（released）を続けます。
+Are you planning to attend the conference in Chicago next month?\tsure,not,I'm,yet\tI'm,not,sure,yet\t.\t否定を表す not の位置と、文末の副詞 yet の配置を正確に行います。
+Did you find the book you were looking for in the library?\tborrow,can,it,I,if,wonder,I\tI,wonder,if,I,can,borrow,it\t.\t接続詞 if の後には「主語＋助動詞＋動詞の原形（I can borrow）」という節の構造を崩さずに入れます。
+What time does the flight to New York depart tomorrow?\tleaving,is,it,morning,tomorrow\tIt,is,leaving,tomorrow,morning\t.\t現在進行形（is leaving）の構造において、be動詞と現在分詞の組み合わせを正しく保ちます。
+Can I borrow your laptop for a few minutes to check my email?\tback,give,you,I'll,it,to,shortly\tI'll,give,it,back,to,you,shortly\t.\t代名詞の目的語（it）が動詞と副詞（give back）の間に入るルールと、未来の助動詞表現（I'll）を処理します。
+Have you seen my car keys anywhere in the kitchen?\ton,left,them,table,the,you,might,have\tYou,might,have,left,them,on,the,table\t.\t過去の推量を表す might have の後ろには過去分詞（left）を置きます。
+How was the final exam for your advanced economics class?\texpected,harder,it,was,much,than\tIt,was,much,harder,than,expected\t.\t比較級（harder）を強調する much の位置と、慣用表現（than expected）の語順を正しく組み立てます。
+Are you satisfied with the current progress of the team project?\troom,improvement,for,is,there,still\tThere,is,still,room,for,improvement\t.\tThere is 構文において、副詞 still の位置と名詞句のコロケーション（room for improvement）を崩さずに配置します。
+Do you know how to operate this new audio equipment?\tmanual,read,first,should,the,you\tYou,should,read,the,manual,first\t.\t助動詞 should の直後に動詞の原形（read）を置く基本文型です。
+Why did you decide to change your major to computer science?\tcareer,better,offer,it,prospects,will\tIt,will,offer,better,career,prospects\t.\t助動詞 will の後に動詞の原形（offer）を置き、目的語とのバランスを保ちます。
+Would you like to join us for dinner after the seminar?\tlove,to,I'd\tI'd,love,to\t.\t誘いに対する肯定の定型表現であり、不定詞の to で止まる形を正しく選択します。
+Have you finished writing your research paper yet?\tfinished,almost,I'm\tI'm,almost,finished\t.\t状態を表す形容詞・分詞（finished）の直前に副詞（almost）を置く語順を把握します。
+Is there anything else you need before we start the meeting?\tgood,all,we're\tWe're,all,good\t.\t「準備万端である」という口語表現における代名詞・副詞・形容詞の配置を正しく組み立てます。
+Do you mind if I open the window for some fresh air?\tahead,go\tGo,ahead\t.\t許可を与える際の短い慣用表現（命令文）の正しい語順を維持します。`;
+
+    // TSVデータをパースして problems 配列に変換
+    const problems = tsvData.trim().split('\n').map(line => {
+        const cols = line.split('\t');
+        return {
+            prompt: cols[0],
+            words: cols[1].split(','),
+            correctOrder: cols[2].split(','),
+            punctuation: cols[3],
+            explanation: cols[4]
+        };
+    });
+
+    let currentIndex = 0;
+    let currentTime = 40;
+    let timerInterval;
+    let userSelectedWords = [];
+    let availableWords = [];
+    let isAnswered = false;
+
+    function init() {
+        if (problems.length > 0) {
+            loadQuestion();
+        } else {
+            document.getElementById('prompt-text').textContent = 'Error: No questions found.';
+        }
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        currentTime = 40;
+        const timerElement = document.getElementById('timer');
+        timerElement.classList.remove('negative');
+        timerElement.innerHTML = `⏱ ${currentTime} s`;
+
+        timerInterval = setInterval(() => {
+            currentTime--;
+            if (currentTime >= 0) {
+                timerElement.innerHTML = `⏱ ${currentTime} s`;
+                timerElement.classList.remove('negative');
+            } else {
+                timerElement.innerHTML = `⏱ ${currentTime} s`;
+                timerElement.classList.add('negative');
+            }
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        isAnswered = false;
+        userSelectedWords = [];
+        
+        const currentProblem = problems[currentIndex];
+        document.getElementById('prompt-text').textContent = currentProblem.prompt;
+        document.getElementById('progress-text').textContent = `Question ${currentIndex + 1} of ${problems.length}`;
+        
+        availableWords = [...currentProblem.words]
+            .map(word => ({ text: word, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(item => item.text);
+
+        document.getElementById('submit-btn').style.display = 'inline-block';
+        document.getElementById('submit-btn').disabled = false;
+        document.getElementById('next-btn').style.display = 'none';
+        
+        document.getElementById('explanation-box').classList.remove('show');
+
+        render();
+        startTimer();
+    }
+
+    function render() {
+        const dropZone = document.getElementById('drop-zone');
+        const wordBank = document.getElementById('word-bank');
+        
+        dropZone.innerHTML = '';
+        wordBank.innerHTML = '';
+
+        userSelectedWords.forEach((word, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = word;
+            if (!isAnswered) {
+                chip.onclick = () => moveToWordBank(index);
+            }
+            dropZone.appendChild(chip);
+        });
+
+        if (userSelectedWords.length === 0 && !isAnswered) {
+            const placeholder = document.createElement('span');
+            placeholder.style.color = 'var(--text-muted)';
+            placeholder.style.fontSize = '0.9rem';
+            placeholder.style.padding = '4px';
+            placeholder.textContent = 'Tap words below to build your sentence...';
+            dropZone.appendChild(placeholder);
+        }
+
+        const punct = document.createElement('span');
+        punct.textContent = problems[currentIndex].punctuation;
+        punct.style.fontSize = '1.2rem';
+        punct.style.fontWeight = 'bold';
+        punct.style.color = 'var(--text-muted)';
+        dropZone.appendChild(punct);
+
+        availableWords.forEach((word, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = word;
+            if (!isAnswered) {
+                chip.onclick = () => moveToDropZone(index);
+            }
+            wordBank.appendChild(chip);
+        });
+    }
+
+    function moveToDropZone(index) {
+        if (isAnswered) return;
+        const word = availableWords.splice(index, 1)[0];
+        userSelectedWords.push(word);
+        render();
+    }
+
+    function moveToWordBank(index) {
+        if (isAnswered) return;
+        const word = userSelectedWords.splice(index, 1)[0];
+        availableWords.push(word);
+        render();
+    }
+
+    function checkAnswer() {
+        if (isAnswered) return;
+        
+        const currentProblem = problems[currentIndex];
+
+        if (userSelectedWords.length !== currentProblem.correctOrder.length) {
+            alert("すべての単語を配置してください。");
+            return;
+        }
+
+        isAnswered = true;
+        clearInterval(timerInterval);
+
+        const isCorrect = userSelectedWords.every((val, index) => val === currentProblem.correctOrder[index]);
+
+        document.getElementById('submit-btn').disabled = true;
+        if (currentIndex < problems.length - 1) {
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        const indicator = document.getElementById('result-indicator');
+        const content = document.getElementById('explanation-content');
+        const box = document.getElementById('explanation-box');
+
+        if (isCorrect) {
+            indicator.className = "result-indicator correct";
+            indicator.textContent = "Correct!";
+        } else {
+            indicator.className = "result-indicator incorrect";
+            indicator.textContent = "Incorrect. Correct Answer: " + currentProblem.correctOrder.join(" ") + currentProblem.punctuation;
+        }
+
+        content.innerHTML = `<strong>Explanation:</strong><br>${currentProblem.explanation}`;
+        box.classList.add('show');
+    }
+
+    function nextQuestion() {
+        if (currentIndex < problems.length - 1) {
+            currentIndex++;
+            loadQuestion();
+        }
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
