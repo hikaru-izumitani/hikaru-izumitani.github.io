@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUILD A SENTENCE - TOEFL Practice</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-badge {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .timer-badge.negative {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .instructions {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .prompt-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            min-height: 70px;
+            padding: 16px;
+            background-color: #ffffff;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .word-bank-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 60px;
+            padding: 12px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .chip {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .chip:hover {
+            border-color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-primary:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .explanation-box {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        .result-indicator {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+        }
+        .result-indicator.correct { color: var(--success-color); }
+        .result-indicator.incorrect { color: var(--danger-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-row">
+        <h1>BUILD A SENTENCE</h1>
+        <div id="timer" class="timer-badge">⏱ 40 s</div>
+    </div>
+
+    <div class="instructions">
+        Move the words into the blanks to create grammatical sentences. If incorrect, review the correct answer and grammar note before proceeding.
+    </div>
+    <div class="progress-text" id="progress-text">Loading questions...</div>
+
+    <div class="card">
+        <div class="prompt-text" id="prompt-text">Loading...</div>
+        
+        <div class="drop-zone" id="drop-zone"></div>
+
+        <div class="word-bank-title">WORD BANK (TAP TO MOVE)</div>
+        <div class="word-bank" id="word-bank"></div>
+    </div>
+
+    <div class="action-row">
+        <button class="btn-primary" id="submit-btn" onclick="checkAnswer()" disabled>Check Answer</button>
+        <button class="btn-primary" id="next-btn" style="display:none; background-color: var(--success-color);" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="explanation-box" id="explanation-box">
+        <div id="result-indicator" class="result-indicator"></div>
+        <div id="explanation-content"></div>
+    </div>
+</div>
+
+<script>
+    let problems = [];
+    let currentIndex = 0;
+    let currentTime = 40;
+    let timerInterval;
+    let userSelectedWords = [];
+    let availableWords = [];
+    let isAnswered = false;
+
+    // CSVをパースする簡易関数（ダブルクォーテーション対応）
+    function parseCSV(text) {
+        let lines = text.trim().split('\n');
+        let result = [];
+        // 1行目はヘッダーなのでスキップ
+        for (let i = 1; i < lines.length; i++) {
+            let row = [];
+            let inQuotes = false;
+            let current = '';
+            let line = lines[i];
+            
+            for (let char of line) {
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    row.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            row.push(current);
+            
+            if (row.length >= 5) {
+                result.push({
+                    prompt: row[0].replace(/^"|"$/g, ''),
+                    words: row[1].replace(/^"|"$/g, '').split(','),
+                    correctOrder: row[2].replace(/^"|"$/g, '').split(','),
+                    punctuation: row[3].replace(/^"|"$/g, ''),
+                    explanation: row[4].replace(/^"|"$/g, '')
+                });
+            }
+        }
+        return result;
+    }
+
+    // 起動時にCSVを読み込む
+    async function init() {
+        try {
+            let response = await fetch('questions.csv');
+            let csvText = await response.text();
+            problems = parseCSV(csvText);
+            if (problems.length > 0) {
+                loadQuestion();
+            } else {
+                document.getElementById('prompt-text').textContent = 'Error: No questions found in CSV.';
+            }
+        } catch (error) {
+            document.getElementById('prompt-text').textContent = 'Error loading questions.csv. Make sure it is in the same folder.';
+            console.error(error);
+        }
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        currentTime = 40;
+        const timerElement = document.getElementById('timer');
+        timerElement.classList.remove('negative');
+        timerElement.innerHTML = `⏱ ${currentTime} s`;
+
+        timerInterval = setInterval(() => {
+            currentTime--;
+            if (currentTime >= 0) {
+                timerElement.innerHTML = `⏱ ${currentTime} s`;
+                timerElement.classList.remove('negative');
+            } else {
+                timerElement.innerHTML = `⏱ ${currentTime} s`;
+                timerElement.classList.add('negative');
+            }
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        isAnswered = false;
+        userSelectedWords = [];
+        
+        const currentProblem = problems[currentIndex];
+        document.getElementById('prompt-text').textContent = currentProblem.prompt;
+        document.getElementById('progress-text').textContent = `Question ${currentIndex + 1} of ${problems.length}`;
+        
+        availableWords = [...currentProblem.words]
+            .map(word => ({ text: word, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(item => item.text);
+
+        document.getElementById('submit-btn').style.display = 'inline-block';
+        document.getElementById('submit-btn').disabled = false;
+        document.getElementById('next-btn').style.display = 'none';
+        
+        document.getElementById('explanation-box').classList.remove('show');
+
+        render();
+        startTimer();
+    }
+
+    function render() {
+        const dropZone = document.getElementById('drop-zone');
+        const wordBank = document.getElementById('word-bank');
+        
+        dropZone.innerHTML = '';
+        wordBank.innerHTML = '';
+
+        userSelectedWords.forEach((word, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = word;
+            if (!isAnswered) {
+                chip.onclick = () => moveToWordBank(index);
+            }
+            dropZone.appendChild(chip);
+        });
+
+        if (userSelectedWords.length === 0 && !isAnswered) {
+            const placeholder = document.createElement('span');
+            placeholder.style.color = 'var(--text-muted)';
+            placeholder.style.fontSize = '0.9rem';
+            placeholder.style.padding = '4px';
+            placeholder.textContent = 'Tap words below to build your sentence...';
+            dropZone.appendChild(placeholder);
+        }
+
+        const punct = document.createElement('span');
+        punct.textContent = problems[currentIndex].punctuation;
+        punct.style.fontSize = '1.2rem';
+        punct.style.fontWeight = 'bold';
+        punct.style.color = 'var(--text-muted)';
+        dropZone.appendChild(punct);
+
+        availableWords.forEach((word, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = word;
+            if (!isAnswered) {
+                chip.onclick = () => moveToDropZone(index);
+            }
+            wordBank.appendChild(chip);
+        });
+    }
+
+    function moveToDropZone(index) {
+        if (isAnswered) return;
+        const word = availableWords.splice(index, 1)[0];
+        userSelectedWords.push(word);
+        render();
+    }
+
+    function moveToWordBank(index) {
+        if (isAnswered) return;
+        const word = userSelectedWords.splice(index, 1)[0];
+        availableWords.push(word);
+        render();
+    }
+
+    function checkAnswer() {
+        if (isAnswered) return;
+        
+        const currentProblem = problems[currentIndex];
+
+        if (userSelectedWords.length !== currentProblem.correctOrder.length) {
+            alert("すべての単語を配置してください。");
+            return;
+        }
+
+        isAnswered = true;
+        clearInterval(timerInterval);
+
+        const isCorrect = userSelectedWords.every((val, index) => val === currentProblem.correctOrder[index]);
+
+        document.getElementById('submit-btn').disabled = true;
+        if (currentIndex < problems.length - 1) {
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        const indicator = document.getElementById('result-indicator');
+        const content = document.getElementById('explanation-content');
+        const box = document.getElementById('explanation-box');
+
+        if (isCorrect) {
+            indicator.className = "result-indicator correct";
+            indicator.textContent = "Correct!";
+        } else {
+            indicator.className = "result-indicator incorrect";
+            indicator.textContent = "Incorrect. Correct Answer: " + currentProblem.correctOrder.join(" ") + currentProblem.punctuation;
+        }
+
+        content.innerHTML = `<strong>Explanation:</strong><br>${currentProblem.explanation}`;
+        box.classList.add('show');
+    }
+
+    function nextQuestion() {
+        if (currentIndex < problems.length - 1) {
+            currentIndex++;
+            loadQuestion();
+        }
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
