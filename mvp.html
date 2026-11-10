@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>401(k) vs. taxable brokerage</title>
+  <style>
+    :root {
+      --text: #1f1d24;
+      --muted: #6b6375;
+      --bg: #fff;
+      --border: #e5e4e7;
+      --accent: #2f5bd3;
+      --grid: #efeef1;
+      --series-1: #2a78d6;
+      --series-2: #eb6834;
+      font: 16px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f1eff5;
+        --muted: #9ca3af;
+        --bg: #16171d;
+        --border: #2e303a;
+        --accent: #8aa8ff;
+        --grid: #24262e;
+        --series-1: #3987e5;
+        --series-2: #d95926;
+      }
+    }
+    body { margin: 0; }
+    main { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+    h1 { font-size: 1.5rem; margin: 0 0 8px; }
+    h2 { font-size: 1.25rem; margin: 32px 0 16px; }
+    .preview, .disclaimer, .hint, .readout { color: var(--muted); }
+    .preview { margin: 0 0 24px; }
+    .disclaimer { font-size: 0.875rem; border-left: 3px solid var(--border); padding-left: 12px; }
+    .ending { font-size: 1.125rem; }
+    .ending strong, .readout strong { color: var(--accent); }
+    .inputs { display: grid; gap: 16px; margin-bottom: 8px; }
+    @media (min-width: 640px) {
+      .inputs { grid-template-columns: repeat(2, 1fr); }
+    }
+    label { display: grid; gap: 4px; font-weight: 500; }
+    input {
+      font: inherit;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: inherit;
+    }
+    input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .chart {
+      margin: 8px 0 4px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 8px 0;
+    }
+    svg { display: block; width: 100%; height: auto; touch-action: none; }
+    .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.875rem; padding: 4px 8px 8px; }
+    .swatch { display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; }
+    .table-wrap { overflow: auto; max-height: 320px; border-top: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.runs-out td { font-weight: 600; }
+    .axis { fill: var(--muted); font-size: 12px; }
+    .grid { stroke: var(--grid); }
+    .mark { stroke: var(--muted); stroke-dasharray: 4 4; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>401(k) vs. taxable brokerage</h1>
+    <p class="preview">A preview of the calculator. It runs in this page only. Nothing is signed in or saved.</p>
+
+    <h2>While working</h2>
+    <form class="inputs" id="working"></form>
+
+    <h2>In retirement</h2>
+    <form class="inputs" id="retirement"></form>
+
+    <div id="results"></div>
+  </main>
+  <script>
+    const DISCLAIMER = 'This is an estimate under the rates you entered, not tax, legal, or investment advice.'
+    const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    const compact = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 })
+
+    const workingFields = [
+      ['startingIncome', 'Starting gross income ($)', '100000', { min: '0' }],
+      ['salaryGrowthPct', 'Salary growth (%)', '2', {}],
+      ['savingsRatePct', 'Savings rate, before income tax (%)', '10', { min: '0', max: '100' }],
+      ['workingTaxPct', 'Working tax rate (%)', '24', { min: '0' }],
+      ['annualReturnPct', 'Annual return (%)', '7', {}],
+      ['taxDragPct', 'Brokerage tax drag (%)', '1', { min: '0' }],
+      ['years', 'Accumulation years', '35', { min: '1', step: '1' }],
+    ]
+    const retirementFields = [
+      ['retirementYears', 'Retirement years', '20', { min: '1', step: '1' }],
+      ['annualSpendable', 'Annual spendable cash, after tax ($)', '40000', { min: '0' }],
+      ['retirementTaxPct', '401(k) retirement tax rate (%)', '22', { min: '0' }],
+      ['capitalGainsPct', 'Capital-gains rate (%)', '15', { min: '0' }],
+    ]
+
+    function fieldInput(key, label, value, attrs) {
+      const wrap = document.createElement('label')
+      wrap.textContent = label
+      const input = document.createElement('input')
+      input.type = 'number'
+      input.step = 'any'
+      input.id = key
+      input.value = value
+      Object.entries(attrs).forEach(([name, attr]) => input.setAttribute(name, attr))
+      wrap.append(input)
+      return wrap
+    }
+
+    document.getElementById('working').append(...workingFields.map((f) => fieldInput(...f)))
+    document.getElementById('retirement').append(...retirementFields.map((f) => fieldInput(...f)))
+
+    function parseNumber(text) {
+      if (text.trim() === '') return null
+      const value = Number(text)
+      return Number.isFinite(value) ? value : null
+    }
+
+    function readInputs() {
+      const fields = {}
+      for (const [key] of [...workingFields, ...retirementFields]) fields[key] = document.getElementById(key).value
+      const retirementYears = parseNumber(fields.retirementYears)
+      const annualSpendable = parseNumber(fields.annualSpendable)
+      const retirementTaxPct = parseNumber(fields.retirementTaxPct)
+      const startingIncome = parseNumber(fields.startingIncome)
+      const salaryGrowthPct = parseNumber(fields.salaryGrowthPct)
+      const savingsRatePct = parseNumber(fields.savingsRatePct)
+      const workingTaxPct = parseNumber(fields.workingTaxPct)
+      const annualReturnPct = parseNumber(fields.annualReturnPct)
+      const taxDragPct = parseNumber(fields.taxDragPct)
+      const years = parseNumber(fields.years)
+      const capitalGainsPct = parseNumber(fields.capitalGainsPct)
+      if (retirementYears === null || !Number.isInteger(retirementYears) || retirementYears < 1) return null
+      if (annualSpendable === null || annualSpendable < 0) return null
+      if (retirementTaxPct === null || retirementTaxPct < 0 || retirementTaxPct >= 100) return null
+      if (startingIncome === null || startingIncome < 0) return null
+      if (salaryGrowthPct === null || salaryGrowthPct <= -100) return null
+      if (savingsRatePct === null || savingsRatePct < 0 || savingsRatePct > 100) return null
+      if (workingTaxPct === null || workingTaxPct < 0 || workingTaxPct >= 100) return null
+      if (annualReturnPct === null || annualReturnPct <= -100) return null
+      if (taxDragPct === null || taxDragPct < 0 || annualReturnPct - taxDragPct <= -100) return null
+      if (years === null || !Number.isInteger(years) || years < 1) return null
+      if (capitalGainsPct === null || capitalGainsPct < 0 || capitalGainsPct >= 100) return null
+      return {
+        startingIncome, salaryGrowthPct, savingsRatePct, workingTaxPct, annualReturnPct, taxDragPct, years,
+        retirementYears, annualSpendable, retirementTaxPct, capitalGainsPct,
+      }
+    }
+
+    function compare(inputs) {
+      const salaryGrowth = 1 + inputs.salaryGrowthPct / 100
+      const growth401k = 1 + inputs.annualReturnPct / 100
+      const growthBrokerage = 1 + (inputs.annualReturnPct - inputs.taxDragPct) / 100
+      const accumulation = []
+      let income = inputs.startingIncome
+      let balance401k = 0
+      let balanceBrokerage = 0
+      let basis = 0
+      for (let year = 1; year <= inputs.years; year++) {
+        if (year > 1) income *= salaryGrowth
+        const pre = income * (inputs.savingsRatePct / 100)
+        const post = pre * (1 - inputs.workingTaxPct / 100)
+        balance401k = (balance401k + pre) * growth401k
+        balanceBrokerage = (balanceBrokerage + post) * growthBrokerage
+        basis += post
+        accumulation.push({ year, income, contribution401k: pre, balance401k, contributionBrokerage: post, balanceBrokerage, basis })
+      }
+
+      const keep = 1 - inputs.retirementTaxPct / 100
+      const grossWithdrawal = inputs.annualSpendable / keep
+      const retirement401k = []
+      let runsOut401k = null
+      let balance = accumulation[accumulation.length - 1].balance401k
+      for (let year = 1; year <= inputs.retirementYears; year++) {
+        const start = balance
+        if (start >= grossWithdrawal) {
+          balance = (start - grossWithdrawal) * growth401k
+          retirement401k.push({ year, start, withdrawn: grossWithdrawal, end: balance, shortfall: 0 })
+        } else {
+          balance = 0
+          runsOut401k ??= year
+          retirement401k.push({ year, start, withdrawn: start, end: 0, shortfall: inputs.annualSpendable - start * keep })
+        }
+      }
+
+      const cgRate = inputs.capitalGainsPct / 100
+      const target = inputs.annualSpendable
+      const retirementBrokerage = []
+      let runsOutBrokerage = null
+      balance = accumulation[accumulation.length - 1].balanceBrokerage
+      basis = accumulation[accumulation.length - 1].basis
+      for (let year = 1; year <= inputs.retirementYears; year++) {
+        const start = balance
+        const basisStart = basis
+        if (start === 0) {
+          if (target > 0) runsOutBrokerage ??= year
+          retirementBrokerage.push({ year, start, basisStart, withdrawn: 0, end: 0, basisEnd: basis, shortfall: target })
+          continue
+        }
+        const gainFraction = (start - basisStart) / start
+        const needed = target / (1 - gainFraction * cgRate)
+        if (start >= needed) {
+          balance = (start - needed) * growthBrokerage
+          basis = Math.max(0, basisStart - needed * (1 - gainFraction))
+          retirementBrokerage.push({ year, start, basisStart, withdrawn: needed, end: balance, basisEnd: basis, shortfall: 0 })
+        } else {
+          const cash = start - (start - basisStart) * cgRate
+          balance = 0
+          basis = 0
+          runsOutBrokerage ??= year
+          retirementBrokerage.push({ year, start, basisStart, withdrawn: start, end: 0, basisEnd: 0, shortfall: target - cash })
+        }
+      }
+
+      let firstToRunOut = 'neither'
+      if (runsOut401k !== null || runsOutBrokerage !== null) {
+        if (runsOutBrokerage === null) firstToRunOut = '401k'
+        else if (runsOut401k === null) firstToRunOut = 'brokerage'
+        else if (runsOut401k === runsOutBrokerage) firstToRunOut = 'same'
+        else firstToRunOut = runsOut401k < runsOutBrokerage ? '401k' : 'brokerage'
+      }
+
+      const points = accumulation.map((y) => ({ year: y.year, balance401k: y.balance401k, balanceBrokerage: y.balanceBrokerage }))
+      const n = accumulation.length
+      retirement401k.forEach((y, i) => {
+        points.push({ year: n + y.year, balance401k: y.end, balanceBrokerage: retirementBrokerage[i].end })
+      })
+      return { accumulation, retirement401k, retirementBrokerage, grossWithdrawal, runsOut401k, runsOutBrokerage, firstToRunOut, points, retirementStart: n + 1 }
+    }
+
+    function runOutStatement(result) {
+      const a = result.runsOut401k
+      const b = result.runsOutBrokerage
+      if (result.firstToRunOut === 'neither') return 'Neither account runs out during these retirement years.'
+      if (result.firstToRunOut === 'same') return `Both accounts run out in retirement year ${a}.`
+      if (result.firstToRunOut === '401k') {
+        return `The 401(k) runs out first, in retirement year ${a}${b === null ? '. The brokerage does not run out.' : `. The brokerage runs out in year ${b}.`}`
+      }
+      return `The brokerage runs out first, in retirement year ${b}${a === null ? '. The 401(k) does not run out.' : `. The 401(k) runs out in year ${a}.`}`
+    }
+
+    function money(n) { return dollars.format(n) }
+
+    function table(headers, rows, highlightYear) {
+      const wrap = document.createElement('div')
+      wrap.className = 'table-wrap'
+      const el = document.createElement('table')
+      const head = document.createElement('tr')
+      headers.forEach((header) => {
+        const th = document.createElement('th')
+        th.textContent = header
+        head.append(th)
+      })
+      const thead = document.createElement('thead')
+      thead.append(head)
+      const body = document.createElement('tbody')
+      rows.forEach((row) => {
+        const tr = document.createElement('tr')
+        if (row[0] === highlightYear) tr.className = 'runs-out'
+        row.forEach((cell, i) => {
+          const td = document.createElement('td')
+          td.textContent = i === 0 ? String(cell) : money(cell)
+          tr.append(td)
+        })
+        body.append(tr)
+      })
+      el.append(thead, body)
+      wrap.append(el)
+      return wrap
+    }
+
+    function niceMax(max) {
+      if (max <= 0) return 1
+      const pow = 10 ** Math.floor(Math.log10(max))
+      const n = max / pow
+      const step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10
+      return step * pow
+    }
+
+    function chartSvg(result) {
+      const width = 840
+      const height = 360
+      const pad = { l: 72, r: 16, t: 28, b: 36 }
+      const plotW = width - pad.l - pad.r
+      const plotH = height - pad.t - pad.b
+      const points = result.points
+      const maxX = points[points.length - 1].year
+      const minX = points[0].year
+      const maxY = niceMax(Math.max(...points.flatMap((p) => [p.balance401k, p.balanceBrokerage])))
+      const xOf = (year) => pad.l + ((year - minX) / Math.max(1, maxX - minX)) * plotW
+      const yOf = (value) => pad.t + (1 - value / maxY) * plotH
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+      svg.setAttribute('role', 'img')
+      svg.setAttribute('aria-label', 'Line chart of 401(k) and taxable brokerage end-of-year balances by year')
+      const title = document.createElementNS(svg.namespaceURI, 'title')
+      title.textContent = '401(k) and taxable brokerage balances by year'
+      svg.append(title)
+
+      for (let i = 0; i <= 4; i++) {
+        const value = (maxY / 4) * i
+        const y = yOf(value)
+        const line = document.createElementNS(svg.namespaceURI, 'line')
+        line.setAttribute('x1', pad.l)
+        line.setAttribute('x2', width - pad.r)
+        line.setAttribute('y1', y)
+        line.setAttribute('y2', y)
+        line.setAttribute('class', 'grid')
+        const label = document.createElementNS(svg.namespaceURI, 'text')
+        label.setAttribute('x', pad.l - 8)
+        label.setAttribute('y', y + 4)
+        label.setAttribute('text-anchor', 'end')
+        label.setAttribute('class', 'axis')
+        label.textContent = compact.format(value)
+        svg.append(line, label)
+      }
+
+      const step = maxX - minX <= 12 ? 1 : Math.ceil((maxX - minX) / 8)
+      for (let year = minX; year <= maxX; year += step) {
+        const label = document.createElementNS(svg.namespaceURI, 'text')
+        label.setAttribute('x', xOf(year))
+        label.setAttribute('y', height - 12)
+        label.setAttribute('text-anchor', 'middle')
+        label.setAttribute('class', 'axis')
+        label.textContent = String(year)
+        svg.append(label)
+      }
+      const yearName = document.createElementNS(svg.namespaceURI, 'text')
+      yearName.setAttribute('x', pad.l + plotW / 2)
+      yearName.setAttribute('y', height - 0)
+      yearName.setAttribute('text-anchor', 'middle')
+      yearName.setAttribute('class', 'axis')
+      yearName.textContent = 'Year'
+      svg.append(yearName)
+
+      const markX = xOf(result.retirementStart)
+      const mark = document.createElementNS(svg.namespaceURI, 'line')
+      mark.setAttribute('x1', markX)
+      mark.setAttribute('x2', markX)
+      mark.setAttribute('y1', pad.t)
+      mark.setAttribute('y2', pad.t + plotH)
+      mark.setAttribute('class', 'mark')
+      const markLabel = document.createElementNS(svg.namespaceURI, 'text')
+      const flip = markX > pad.l + plotW - 130
+      markLabel.setAttribute('x', flip ? markX - 6 : markX + 6)
+      markLabel.setAttribute('y', pad.t + 12)
+      markLabel.setAttribute('text-anchor', flip ? 'end' : 'start')
+      markLabel.setAttribute('class', 'axis')
+      markLabel.setAttribute('fill', 'var(--text)')
+      markLabel.textContent = 'Retirement starts'
+      svg.append(mark, markLabel)
+
+      function polyline(key, color) {
+        const el = document.createElementNS(svg.namespaceURI, 'polyline')
+        el.setAttribute('fill', 'none')
+        el.setAttribute('stroke', color)
+        el.setAttribute('stroke-width', '2')
+        el.setAttribute('points', points.map((p) => `${xOf(p.year)},${yOf(p[key])}`).join(' '))
+        return el
+      }
+      svg.append(polyline('balance401k', 'var(--series-1)'), polyline('balanceBrokerage', 'var(--series-2)'))
+
+      const hover = document.createElementNS(svg.namespaceURI, 'line')
+      hover.setAttribute('class', 'mark')
+      hover.setAttribute('y1', pad.t)
+      hover.setAttribute('y2', pad.t + plotH)
+      hover.setAttribute('visibility', 'hidden')
+      svg.append(hover)
+
+      svg.addEventListener('pointermove', (event) => {
+        const rect = svg.getBoundingClientRect()
+        const x = ((event.clientX - rect.left) / rect.width) * width
+        let nearest = points[0]
+        let best = Infinity
+        for (const point of points) {
+          const distance = Math.abs(xOf(point.year) - x)
+          if (distance < best) {
+            best = distance
+            nearest = point
+          }
+        }
+        hover.setAttribute('x1', xOf(nearest.year))
+        hover.setAttribute('x2', xOf(nearest.year))
+        hover.setAttribute('visibility', 'visible')
+        document.getElementById('readout').textContent = `Year ${nearest.year}: 401(k) ${money(nearest.balance401k)}, taxable brokerage ${money(nearest.balanceBrokerage)}.`
+      })
+      svg.addEventListener('pointerleave', () => {
+        hover.setAttribute('visibility', 'hidden')
+        document.getElementById('readout').textContent = 'Move across the chart to read a year.'
+      })
+      return svg
+    }
+
+    function render() {
+      const root = document.getElementById('results')
+      root.replaceChildren()
+      const inputs = readInputs()
+      if (!inputs) {
+        const hint = document.createElement('p')
+        hint.className = 'hint'
+        hint.textContent = 'Results appear when every field is valid: income and spendable cash 0 or more; salary growth and return above −100%; savings rate 0–100%; tax rates from 0 up to (not including) 100%; tax drag 0 or more with return minus drag above −100%; whole numbers of years, 1 or more.'
+        root.append(hint)
+        return
+      }
+      const result = compare(inputs)
+      const last = result.accumulation[result.accumulation.length - 1]
+      const disclaimer = document.createElement('p')
+      disclaimer.className = 'disclaimer'
+      disclaimer.textContent = DISCLAIMER
+      const ending = document.createElement('p')
+      ending.className = 'ending'
+      const strong = document.createElement('strong')
+      strong.textContent = runOutStatement(result)
+      ending.append(strong)
+      const atRetirement = document.createElement('p')
+      atRetirement.textContent = `After ${last.year} working ${last.year === 1 ? 'year' : 'years'}, the 401(k) is ${money(last.balance401k)} and the taxable brokerage is ${money(last.balanceBrokerage)}.`
+
+      const chartBox = document.createElement('div')
+      chartBox.className = 'chart'
+      chartBox.append(chartSvg(result))
+      const legend = document.createElement('div')
+      legend.className = 'legend'
+      legend.innerHTML = '<span><i class="swatch" style="background:var(--series-1)"></i>401(k)</span><span><i class="swatch" style="background:var(--series-2)"></i>Taxable brokerage</span>'
+      const readout = document.createElement('p')
+      readout.id = 'readout'
+      readout.className = 'readout'
+      readout.textContent = 'Move across the chart to read a year.'
+      chartBox.append(legend, readout)
+
+      const hAcc = document.createElement('h2')
+      hAcc.textContent = 'Accumulation'
+      const h401 = document.createElement('h2')
+      h401.textContent = '401(k) retirement'
+      const gross = document.createElement('p')
+      gross.innerHTML = `Required gross withdrawal: <strong>${money(result.grossWithdrawal)}</strong> per year`
+      const hBr = document.createElement('h2')
+      hBr.textContent = 'Brokerage retirement'
+
+      root.append(
+        disclaimer,
+        ending,
+        atRetirement,
+        Object.assign(document.createElement('h2'), { textContent: 'Balances' }),
+        chartBox,
+        hAcc,
+        table(
+          ['Year', 'Income', '401(k) contribution', '401(k) balance', 'Brokerage contribution', 'Brokerage balance', 'Basis'],
+          result.accumulation.map((y) => [y.year, y.income, y.contribution401k, y.balance401k, y.contributionBrokerage, y.balanceBrokerage, y.basis]),
+        ),
+        h401,
+        gross,
+        table(
+          ['Retirement year', 'Start', 'Withdrawn', 'End', 'Spendable shortfall'],
+          result.retirement401k.map((y) => [y.year, y.start, y.withdrawn, y.end, y.shortfall]),
+          result.runsOut401k,
+        ),
+        hBr,
+        table(
+          ['Retirement year', 'Start', 'Basis at start', 'Withdrawn', 'End', 'Basis at end', 'Spendable shortfall'],
+          result.retirementBrokerage.map((y) => [y.year, y.start, y.basisStart, y.withdrawn, y.end, y.basisEnd, y.shortfall]),
+          result.runsOutBrokerage,
+        ),
+      )
+    }
+
+    document.querySelectorAll('input').forEach((input) => input.addEventListener('input', render))
+    render()
+  </script>
+</body>
+</html>
